@@ -11,20 +11,18 @@ const router = express.Router();
 app.use('/assets', express.static('dist'));
 app.use('/assets', express.static('public'));
 app.use(express.static('dist'));
-app.get('/archive/:id(\\d+)', handleRender);
 
 function fetchData(id, callback) {
   fetch(`http://localhost:8080/wordpress/wp-json/wp/v2/posts/${id}`, {
-    method: "get",
-    mode: 'cors'
-  }).then(response => {
+    method: 'get',
+    mode: 'cors',
+  }).then((response) => {
     if (response.status === 200) {
       return response.json();
-    } else {
-      console.dir(response);
     }
+    return console.dir(response);
   }).then(
-    json => callback(json)
+    json => callback(json),
   ).catch(
     response => console.dir(response)
   );
@@ -33,7 +31,7 @@ function handleRender(req, res) {
   console.log(req.params);
   const id = req.params.id;
   fetchData(id, (apiResult) => {
-    let preloadedState = { data: apiResult };
+    const preloadedState = { data: apiResult };
     console.log(preloadedState);
     const html = ReactDOMServer.renderToString(
       <App { ...preloadedState } />
@@ -66,6 +64,8 @@ function renderFullPage(renderedItem) {
     </html>
     `;
 }
+
+app.get('/archive/:id(\\d+)', handleRender);
 
 app.listen(
   port, () => console.log(`Hello app listening on port ${port}!`)
